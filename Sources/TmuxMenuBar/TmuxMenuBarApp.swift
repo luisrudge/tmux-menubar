@@ -53,6 +53,10 @@ struct TmuxMenuBarApp: App {
 struct MenuContentView: View {
     @Bindable var appState: AppState
     
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
+    }
+    
     var body: some View {
         HStack(spacing: 0) {
             // Left: Session list
@@ -78,10 +82,16 @@ struct MenuContentView: View {
                 
                 Divider()
                 
-                Button("Quit") {
-                    NSApplication.shared.terminate(nil)
+                HStack {
+                    Text("v\(appVersion)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Button("Quit") {
+                        NSApplication.shared.terminate(nil)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
             }
