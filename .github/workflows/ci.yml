@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+
+      - name: Show Swift version
+        run: swift --version
+
+      - name: Build (Debug)
+        run: swift build
+
+      - name: Build (Release)
+        run: swift build -c release
+
+      - name: Build App Bundle
+        run: make build
+
+      - name: Verify App Bundle
+        run: |
+          test -f TmuxMenuBar.app/Contents/MacOS/TmuxMenuBar
+          test -f TmuxMenuBar.app/Contents/Info.plist
+          echo "App bundle structure verified"
+
+      - name: Create ZIP for Release
+        if: startsWith(github.ref, 'refs/tags/')
+        run: zip -r TmuxMenuBar.zip TmuxMenuBar.app
+
+      - name: Upload Build Artifact
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: TmuxMenuBar
+          path: TmuxMenuBar.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: TmuxMenuBar
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: TmuxMenuBar.zip
+          generate_release_notes: true
