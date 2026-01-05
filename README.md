@@ -5,6 +5,8 @@ A lightweight macOS menu bar app for monitoring and managing tmux sessions.
 ![macOS 14+](https://img.shields.io/badge/macOS-14%2B-blue)
 ![Swift 5.9+](https://img.shields.io/badge/Swift-5.9%2B-orange)
 
+![TmuxMenuBar screenshot showing the menu bar panel with a list of tmux sessions on the left (api-backend, build, logs-watcher, web-server, worker) and real-time logs for the selected api-backend session on the right displaying server startup messages](image.jpg)
+
 ## Features
 
 - View all active tmux sessions from your menu bar
