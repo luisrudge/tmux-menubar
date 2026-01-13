@@ -35,6 +35,12 @@ final class AppState {
         }
         refresh()
     }
+    
+    func killAllSessions() {
+        TmuxService.killAllSessions()
+        selectedSession = nil
+        refresh()
+    }
 }
 
 @main
@@ -61,10 +67,21 @@ struct MenuContentView: View {
         HStack(spacing: 0) {
             // Left: Session list
             VStack(alignment: .leading, spacing: 0) {
-                Text("Sessions")
-                    .font(.headline)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
+                HStack {
+                    Text("Sessions")
+                        .font(.headline)
+                    Spacer()
+                    if !appState.sessions.isEmpty {
+                        Button("Kill All") {
+                            appState.killAllSessions()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.red)
+                        .controlSize(.small)
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
                 
                 Divider()
                 

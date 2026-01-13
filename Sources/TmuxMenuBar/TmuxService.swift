@@ -18,6 +18,11 @@ struct TmuxService {
         _ = run("tmux", "kill-session", "-t", session)
     }
     
+    /// Kills all tmux sessions (kills the server)
+    static func killAllSessions() {
+        _ = run("tmux", "kill-server")
+    }
+    
     // MARK: - Private
     
     private static func run(_ args: String...) -> String {
