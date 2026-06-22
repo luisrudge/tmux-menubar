@@ -25,12 +25,39 @@ struct TmuxService {
     
     // MARK: - Private
     
+    /// Default tmux socket path for the current user
+    private static var socketPath: String {
+        "/private/tmp/tmux-\(getuid())/default"
+    }
+    
+    /// Find tmux binary path (Homebrew locations + system PATH)
+    private static var tmuxPath: String {
+        let candidates = [
+            "/opt/homebrew/bin/tmux",  // Apple Silicon Homebrew
+            "/usr/local/bin/tmux",      // Intel Homebrew
+            "/usr/bin/tmux"             // System install
+        ]
+        for path in candidates {
+            if FileManager.default.fileExists(atPath: path) {
+                return path
+            }
+        }
+        return "tmux"  // Fallback to PATH lookup
+    }
+    
     private static func run(_ args: String...) -> String {
         let process = Process()
         let pipe = Pipe()
         
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-        process.arguments = args
+        // Build args: replace "tmux" with full path and add socket
+        var allArgs = Array(args)
+        if let tmuxIndex = allArgs.firstIndex(of: "tmux") {
+            allArgs[tmuxIndex] = tmuxPath
+            allArgs.insert(contentsOf: ["-S", socketPath], at: tmuxIndex + 1)
+        }
+        
+        process.executableURL = URL(fileURLWithPath: allArgs.removeFirst())
+        process.arguments = allArgs
         process.standardOutput = pipe
         process.standardError = FileHandle.nullDevice
         
